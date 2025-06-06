@@ -18,7 +18,14 @@ Run the following command in your terminal:
 ```bash
 bun install
 
+
+#start the datbase, if needed using 
+./start-database.sh
+
+bun run db:push
+
 bun dev
+
 ```
 ---
 
