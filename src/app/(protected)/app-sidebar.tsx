@@ -32,6 +32,21 @@ export function AppSideBar() {
     },
   ]
   
+  const projects = [
+    {
+      name:'Project 1',
+    },
+        {
+      name:'Project 2',
+    },
+        {
+      name:'Project 3',
+    },
+        {
+      name:'Project 4',
+    },
+  ]
+  
   return (
     <Sidebar collapsible="icon" variant="floating">
       <SidebarHeader>
@@ -61,6 +76,23 @@ export function AppSideBar() {
                 </SidebarMenuItem>
               )
             })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            Your Projects
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/settings">
+                    <Bot />
+                    <span>Settings</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
