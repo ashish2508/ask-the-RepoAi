@@ -52,9 +52,6 @@ export function AppSideBar() {
     {
       name: "Project 3",
     },
-    {
-      name: "Project 4",
-    },
   ];
 
   return (
@@ -90,17 +87,32 @@ export function AppSideBar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Your Projects</SidebarGroupLabel>
+          <SidebarGroupLabel>Your Projects
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/settings">
-                    <Bot />
-                    <span>Settings</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {projects.map((project) => {
+                return (
+                  <SidebarMenuItem key={project.name}>
+                    <SidebarMenuButton asChild>
+                      <div className="cursor-pointer">
+                        <div
+                          className={cn(
+                            "text-primary hover:shadow-primary/60 flex size-7 items-center justify-center rounded-sm border bg-white transition-all duration-300 hover:scale-125 hover:shadow-xl hover:brightness-110",
+                            {
+                              "bg-primary text-white hover:shadow-white/60": true,
+                            },
+                          )}
+                        >
+                          {project.name[0]}
+                        </div>
+
+                        <span>{project.name}</span>
+                      </div>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );  
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
