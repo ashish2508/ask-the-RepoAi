@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark, neobrutalism } from "@clerk/themes";
+import { ThemeProvider } from "next-themes";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
@@ -28,12 +29,18 @@ export default function RootLayout({
         baseTheme: [neobrutalism],
         signIn: { baseTheme: neobrutalism },
         signUp: { baseTheme: neobrutalism },
-        
       }}
     >
       <html lang="en" className={`${geist.variable}`} suppressHydrationWarning>
         <body suppressHydrationWarning>
-          <TRPCReactProvider>{children}</TRPCReactProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem={true}
+            disableTransitionOnChange
+          >
+            <TRPCReactProvider>{children}</TRPCReactProvider>
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

@@ -2,6 +2,7 @@ import { SidebarProvider } from '@/components/ui/sidebar'
 import { UserButton } from '@clerk/nextjs'
 import type { ReactNode } from 'react'
 import { AppSideBar } from './app-sidebar'
+import { ThemeToggle } from '@/components/ui/themeToggle'
 
 type Props = {
   children: ReactNode
@@ -15,6 +16,9 @@ const SidebarLayout = ({ children }: Props) => {
         <div className="flex items-center gap-2 border-sidebar-border bg-sidebar border shadow rounded-md p-2 px-4">
           {/* <SearchBar /> */}
           <div className="ml-auto"></div>
+          <div className="flex-1"></div>
+          {/* <ThemeToggle /> */}
+          <ThemeToggle />
           <UserButton />
         </div>
         <div className="mt-4">
