@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 
 export default async function Home() {
   return (
-   <h1 className="text-3xl text-emerald-600/90 font-bold bg:black"> 
+    <h1 className="bg-black text-3xl font-bold text-emerald-600/90">
       <Button>click me</Button>
     </h1>
   );

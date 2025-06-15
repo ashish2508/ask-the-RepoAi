@@ -11,6 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +28,7 @@ import { usePathname } from "next/navigation";
 
 export function AppSideBar() {
   const pathname = usePathname();
+  const {open} = useSidebar();
   const items = [
     {
       title: "Dashboard",
@@ -65,16 +67,21 @@ export function AppSideBar() {
   return (
     <Sidebar collapsible="icon" variant="floating">
       <SidebarHeader>
-        <Image
-          src="/assets/logo.png"
-          alt="Logo"
-          width={100}
-          height={100}
-          className="mb-4 h-10 w-auto"
-          priority
-          
-        />
-          
+        <div className="item flex items-center gap-2">
+          <Image
+            src="/assets/logo.png"
+            alt="Logo"
+            width={40}
+            height={40}
+            priority
+            className="rounded-lg transition-all duration-300 group-hover:brightness-110"  
+          />
+          {open && (
+            <h1 className="text-primary/80 text-xl font-bold">
+              Ask your RepoAi
+            </h1>
+          )}
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
@@ -134,16 +141,25 @@ export function AppSideBar() {
               })}
             </SidebarMenu>
             <div className="h-2"></div>
-            <Link href="/create">
-              <Button
-                size="sm"
-                variant={"outline"}
-                className="w-fit cursor-pointer hover:bg-black/20"
-              >
-                <PlusIcon />
-                Create New Project
-              </Button>
-            </Link>
+            <div
+              className={cn(
+                open ? "flex justify-start px-2" : "flex justify-center",
+              )}
+            >
+              <Link href="/create">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className={cn(
+                    "flex items-center justify-center gap-2 transition-all",
+                    !open && "w-9 p-0",
+                  )}
+                >
+                  <PlusIcon className="size-4" />
+                  {open && <span>Create New Project</span>}
+                </Button>
+              </Link>
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
