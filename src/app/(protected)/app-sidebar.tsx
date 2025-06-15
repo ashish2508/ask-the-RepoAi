@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +14,14 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
-import { Bot, CreditCard, LayoutDashboard, Presentation } from "lucide-react";
+import {
+  Bot,
+  CreditCard,
+  LayoutDashboard,
+  PlusIcon,
+  Presentation,
+} from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -56,7 +64,18 @@ export function AppSideBar() {
 
   return (
     <Sidebar collapsible="icon" variant="floating">
-      <SidebarHeader>Logo</SidebarHeader>
+      <SidebarHeader>
+        <Image
+          src="/assets/logo.png"
+          alt="Logo"
+          width={100}
+          height={100}
+          className="mb-4 h-10 w-auto"
+          priority
+          
+        />
+          
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -87,8 +106,7 @@ export function AppSideBar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Your Projects
-          </SidebarGroupLabel>
+          <SidebarGroupLabel>Your Projects</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {projects.map((project) => {
@@ -100,7 +118,8 @@ export function AppSideBar() {
                           className={cn(
                             "text-primary hover:shadow-primary/60 flex size-7 items-center justify-center rounded-sm border bg-white transition-all duration-300 hover:scale-125 hover:shadow-xl hover:brightness-110",
                             {
-                              "bg-primary text-white hover:shadow-white/60": true,
+                              "bg-primary text-white hover:shadow-white/60":
+                                true,
                             },
                           )}
                         >
@@ -111,9 +130,20 @@ export function AppSideBar() {
                       </div>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                );  
+                );
               })}
             </SidebarMenu>
+            <div className="h-2"></div>
+            <Link href="/create">
+              <Button
+                size="sm"
+                variant={"outline"}
+                className="w-fit cursor-pointer hover:bg-black/20"
+              >
+                <PlusIcon />
+                Create New Project
+              </Button>
+            </Link>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
