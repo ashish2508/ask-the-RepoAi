@@ -78,7 +78,7 @@ export function AppSideBar() {
           />
           {open && (
             <h1 className="text-primary/80 text-xl font-bold">
-              Ask your RepoAi
+              Ask RepoAi
             </h1>
           )}
         </div>
