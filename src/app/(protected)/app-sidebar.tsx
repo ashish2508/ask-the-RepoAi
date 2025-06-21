@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import useProject from "@/hooks/use-project";
 import { cn } from "@/lib/utils";
 
 import {
@@ -28,7 +29,9 @@ import { usePathname } from "next/navigation";
 
 export function AppSideBar() {
   const pathname = usePathname();
-  const {open} = useSidebar();
+  const { open } = useSidebar();
+  const { projects, projectId, setProjectId } = useProject();
+
   const items = [
     {
       title: "Dashboard",
@@ -52,18 +55,6 @@ export function AppSideBar() {
     },
   ];
 
-  const projects = [
-    {
-      name: "Project 1",
-    },
-    {
-      name: "Project 2",
-    },
-    {
-      name: "Project 3",
-    },
-  ];
-
   return (
     <Sidebar collapsible="icon" variant="floating">
       <SidebarHeader>
@@ -74,12 +65,10 @@ export function AppSideBar() {
             width={40}
             height={40}
             priority
-            className="rounded-lg transition-all duration-300 group-hover:brightness-110"  
+            className="rounded-lg transition-all duration-300 group-hover:brightness-110"
           />
           {open && (
-            <h1 className="text-primary/80 text-xl font-bold">
-              Ask RepoAi
-            </h1>
+            <h1 className="text-primary/80 text-xl font-bold">Ask RepoAi</h1>
           )}
         </div>
       </SidebarHeader>
@@ -116,17 +105,17 @@ export function AppSideBar() {
           <SidebarGroupLabel>Your Projects</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {projects.map((project) => {
+              {projects?.map((project) => {
                 return (
                   <SidebarMenuItem key={project.name}>
                     <SidebarMenuButton asChild>
-                      <div className="cursor-pointer">
+                      <div className="cursor-pointer" onClick={() => setProjectId(project.id)}>
                         <div
                           className={cn(
                             "text-primary hover:shadow-primary/60 flex size-7 items-center justify-center rounded-sm border bg-white transition-all duration-300 hover:scale-125 hover:shadow-xl hover:brightness-110",
                             {
                               "bg-primary text-white hover:shadow-white/60":
-                                true,
+                                project.id === projectId,
                             },
                           )}
                         >
@@ -138,7 +127,7 @@ export function AppSideBar() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
-              })}
+              })} 
             </SidebarMenu>
             <div className="h-2"></div>
             <div
@@ -151,12 +140,12 @@ export function AppSideBar() {
                   size="sm"
                   variant="outline"
                   className={cn(
-                    "flex items-center justify-center gap-2 transition-all cursor-pointer",
+                    "flex cursor-pointer items-center justify-center gap-2 transition-all",
                     !open && "w-9 p-0",
                   )}
                 >
                   <PlusIcon className="size-4" />
-                  {open && <span >Create New Project</span>}
+                  {open && <span>Create New Project</span>}
                 </Button>
               </Link>
             </div>
