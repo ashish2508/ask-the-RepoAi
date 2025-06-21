@@ -16,7 +16,7 @@ const CreatePage = () => {
 
   
   function onSubmit(data: FormInput){
-    window.alert(data)
+    window.alert(JSON.stringify(data,null,2))
     return true
   }
   
@@ -45,12 +45,14 @@ const CreatePage = () => {
             <Input
               {...register("projectName", { required: true })}
               placeholder="Project Name"
+              type="text"
               required
             />
             <div className="h-4"></div>
             <Input
               {...register("repoUrl", { required: true })}
               placeholder="Github repo url"
+              type="url"
               required
             />
             <div className="h-4"></div>
@@ -60,8 +62,8 @@ const CreatePage = () => {
               placeholder="Github Token (Optional)" 
             />
             <div className="h-4"></div>
-              <Button type='submit' >
-                
+              <Button type='submit' className="cursor-pointer">
+                Create Project
               </Button>
           </form>
         </div>

@@ -151,12 +151,12 @@ export function AppSideBar() {
                   size="sm"
                   variant="outline"
                   className={cn(
-                    "flex items-center justify-center gap-2 transition-all",
+                    "flex items-center justify-center gap-2 transition-all cursor-pointer",
                     !open && "w-9 p-0",
                   )}
                 >
                   <PlusIcon className="size-4" />
-                  {open && <span>Create New Project</span>}
+                  {open && <span >Create New Project</span>}
                 </Button>
               </Link>
             </div>
