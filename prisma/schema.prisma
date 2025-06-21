@@ -31,3 +31,15 @@ emailAddress String @unique
 credits Int @default(150)
 
 }
+
+model Project{
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  name String
+  githubUrl String?
+  
+  deletedAt DateTime?
+  
+}
