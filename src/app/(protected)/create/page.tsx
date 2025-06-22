@@ -2,7 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import useRefetch from "@/hooks/use-refetch";
 import { api } from "@/trpc/react";
+import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -15,27 +17,31 @@ type FormInput = {
 
 const CreatePage = () => {
   const { register, handleSubmit, reset } = useForm<FormInput>();
-  const createProject =  api.project.createProject.useMutation();
-  
-  function onSubmit(data: FormInput){
-    createProject.mutate({
-      name: data.projectName,
-      githubUrl: data.repoUrl,
-      githubToken: data.githubToken,
-    }, {
-      onSuccess: () => {
-        toast.success("Project created successfully!");
-        window.location.reload();
-        reset();
+  const createProject = api.project.createProject.useMutation();
+  const refetch = useRefetch();
+  function onSubmit(data: FormInput) {
+    createProject.mutate(
+      {
+        name: data.projectName,
+        githubUrl: data.repoUrl,
+        githubToken: data.githubToken,
       },
-      onError: (error) => {
-        console.error("Error creating project:", error);
-        toast.error("Failed to create project. Please try again.");
+      {
+        onSuccess: () => {
+          toast.success("Project created successfully!");
+          refetch();
+          window.location.reload();
+          reset();
+        },
+        onError: (error) => {
+          console.error("Error creating project:", error);
+          toast.error("Failed to create project. Please try again.");
+        },
       },
-    });
-    return true
+    );
+    return true;
   }
-  
+
   return (
     <div className="flex h-full items-center justify-center gap-12">
       <Image
@@ -75,12 +81,19 @@ const CreatePage = () => {
 
             <Input
               {...register("githubToken")}
-              placeholder="Github Token (Optional)" 
+              placeholder="Github Token (Optional)"
             />
             <div className="h-4"></div>
-              <Button type='submit' className="cursor-pointer" disabled={createProject.isPending}>
-                Create Project
-              </Button>
+            <Button
+              type="submit"
+              className="cursor-pointer"
+              disabled={createProject.isPending}
+            >
+              {createProject.isPending && (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              )}
+              Create Project
+            </Button>
           </form>
         </div>
       </div>
