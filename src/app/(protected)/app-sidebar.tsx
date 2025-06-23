@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import MagneticWrapper from "@/components/ui/magnetic-wrapper";
 import {
   Sidebar,
   SidebarContent,
@@ -59,17 +60,19 @@ export function AppSideBar() {
     <Sidebar collapsible="icon" variant="floating">
       <SidebarHeader>
         <div className="item flex items-center gap-2">
-          <Image
-            src="/assets/logo.png"
-            alt="Logo"
-            width={40}
-            height={40}
-            priority
-            className="rounded-lg transition-all duration-300 group-hover:brightness-110"
-          />
-          {open && (
-            <h1 className="text-primary/80 text-xl font-bold">Ask RepoAi</h1>
-          )}
+          <MagneticWrapper>
+            <Image
+              src="/assets/logo.png"
+              alt="Logo"
+              width={40}
+              height={40}
+              priority
+              className="rounded-lg transition-all duration-300 group-hover:brightness-110"
+            />
+            </MagneticWrapper>
+            {open && (
+              <h1 className="text-primary/80 text-xl font-bold">Ask RepoAi</h1>
+            )}
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -109,7 +112,10 @@ export function AppSideBar() {
                 return (
                   <SidebarMenuItem key={project.name}>
                     <SidebarMenuButton asChild>
-                      <div className="cursor-pointer" onClick={() => setProjectId(project.id)}>
+                      <div
+                        className="cursor-pointer"
+                        onClick={() => setProjectId(project.id)}
+                      >
                         <div
                           className={cn(
                             "text-primary hover:shadow-primary/60 flex size-7 items-center justify-center rounded-sm border bg-white transition-all duration-300 hover:scale-125 hover:shadow-xl hover:brightness-110",
@@ -127,7 +133,7 @@ export function AppSideBar() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
-              })} 
+              })}
             </SidebarMenu>
             <div className="h-2"></div>
             <div

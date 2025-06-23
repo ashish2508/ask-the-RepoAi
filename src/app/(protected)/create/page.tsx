@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import MagneticWrapper from "@/components/ui/magnetic-wrapper";
 import useRefetch from "@/hooks/use-refetch";
 import { api } from "@/trpc/react";
 import { Loader2 } from "lucide-react";
@@ -44,14 +45,16 @@ const CreatePage = () => {
 
   return (
     <div className="flex h-full items-center justify-center gap-12">
-      <Image
-        src="/assets/slap.png"
-        alt="Create Project"
-        width={400}
-        height={400}
-        priority
-        className="h-66 w-auto rounded-2xl transition-transform duration-300 hover:scale-120"
-      />
+      <MagneticWrapper>
+        <Image
+          src="/assets/slap.png"
+          alt="Create Project"
+          width={400}
+          height={400}
+          priority
+          className="h-66 w-auto rounded-2xl transition-transform duration-300 hover:scale-120"
+        />
+      </MagneticWrapper>
       <div className="flex flex-col gap-4">
         <div>
           <h1 className="text-2xl font-semibold">

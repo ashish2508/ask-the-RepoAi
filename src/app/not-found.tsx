@@ -1,3 +1,5 @@
+import AnimatedText from "@/components/ui/animated-text";
+import MagneticWrapper from "@/components/ui/magnetic-wrapper";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -5,20 +7,21 @@ export default function NotFoundPage() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-br from-zinc-950/90 to-slate-800/80 px-4 py-8">
       <div className="max-w-md text-center">
-        <Image
-          src="/assets/notFound.png"
-          alt="Page not found illustration"
-          width={300}
-          height={300}
-          className="mx-auto mb-8 rounded-4xl object-cover"
-          priority
-          quality={100}
-        />
+        <MagneticWrapper animationDuration={2} elasticity={20}>
+          <Image
+            src="/assets/notFound.png"
+            alt="Page not found illustration"
+            width={300}
+            height={300}
+            className="mx-auto mb-8 rounded-4xl object-cover"
+            priority
+            quality={100}
+          />
+        </MagneticWrapper>
 
         <h1 className="text-foreground mb-4 scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
           Oops! Page Not Found
         </h1>
-
         <p className="text-muted-foreground mx-auto mb-8 max-w-sm leading-7">
           {"Looks like you got lost, Come on, Let's go back home."}
         </p>
