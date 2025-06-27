@@ -13,7 +13,7 @@ export const generationConfig = {
 
 export { model };
 
-export const summarizeCommit = async (diff: string) => {
+export const aiSummarizeCommit = async (diff: string) => {
   const response = await model.generateContent([
     `You are an expert programmer, and you are trying to summarize a git diff.
     Reminders about the git diff format:
