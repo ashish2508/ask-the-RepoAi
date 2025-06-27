@@ -10,7 +10,7 @@ import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-type FormInput = {
+export type FormInput = {
   repoUrl: string;
   projectName: string;
   githubToken?: string;
