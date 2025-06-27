@@ -1,5 +1,5 @@
 import { db } from "@/server/db"
-import {Octokit} from "octokit"
+import { Octokit } from "octokit"
 
 export const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,   
@@ -34,6 +34,7 @@ return sortedCommits.slice(0, 10).map((commit: any) => ({
 export const pullCommits= async (projectId: string): Promise<Response[]> => {
   const {project, githubUrl} = await fetchProjectGithubUrl(projectId);
   const commitHashes = await getCommitHashes(githubUrl);
+  const unprocessedCommits = await filterUnprocessedCommits(projectId, commitHashes);
 }
 
 async function fetchProjectGithubUrl(projectId: string) {
@@ -48,4 +49,14 @@ async function fetchProjectGithubUrl(projectId: string) {
     throw new Error("Project does not have a GitHub URL");
   }
   return {project, githubUrl: project?.githubUrl!};
+}
+
+async function filterUnprocessedCommits(projectId:string, commitHashes: Response[] ) {
+  
+  const processedCommits = await db.commit.findMany({
+    where: { projectId },
+  })
+  const UnProcessedCommitHashes = commitHashes.filter((commit) => 
+    !processedCommits.some((processedCommit) => processedCommit.commitHash === commit.commitHash));
+  return UnProcessedCommitHashes;
 }
