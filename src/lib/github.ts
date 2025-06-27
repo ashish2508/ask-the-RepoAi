@@ -1,3 +1,4 @@
+import { db } from "@/server/db"
 import {Octokit} from "octokit"
 
 export const octokit = new Octokit({
@@ -21,7 +22,7 @@ const {data} = await octokit.rest.repos.listCommits({
 })
 
 const sortedCommits = data.sort((a: any, b:any) => new Date(b.commit.author.date).getTime() - new Date(a.commit.author.date).getTime()) as any[]
-return sortedCommits.slice(0, 15).map((commit: any) => ({
+return sortedCommits.slice(0, 10).map((commit: any) => ({
     commitHash: commit.sha as string,
     commitMessages: commit.commit?.message ?? "",
     commitAuthorName: commit.commit?.author.name ?? "",
@@ -30,4 +31,21 @@ return sortedCommits.slice(0, 15).map((commit: any) => ({
   }))
 }
 
-console.log(await getCommitHashes(githubUrl))
+export const pullCommits= async (projectId: string): Promise<Response[]> => {
+  const {project, githubUrl} = await fetchProjectGithubUrl(projectId);
+  const commitHashes = await getCommitHashes(githubUrl);
+}
+
+async function fetchProjectGithubUrl(projectId: string) {
+  const project = await db.project.findUnique({
+    where: { id: projectId },
+    select: { githubUrl: true },
+  })
+  if (!project ) {
+    throw new Error("Project not found");
+  }
+  if (!project.githubUrl) {
+    throw new Error("Project does not have a GitHub URL");
+  }
+  return {project, githubUrl: project?.githubUrl!};
+}
