@@ -1,6 +1,6 @@
+import { pollCommits } from "@/lib/github";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { pollCommits } from "@/lib/github";
 
 export const projectRouter = createTRPCRouter({
   createProject: protectedProcedure
