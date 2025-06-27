@@ -44,7 +44,7 @@ return sortedCommits.slice(0, 10).map((commit: any) => ({
   }))
 }
 
-export const pullCommits= async (projectId: string): Promise<Response[]> => {
+export const pollCommits= async (projectId: string) => {
   const {project, githubUrl} = await fetchProjectGithubUrl(projectId);
   const commitHashes = await getCommitHashes(githubUrl);
   const unprocessedCommits = await filterUnprocessedCommits(projectId, commitHashes);
