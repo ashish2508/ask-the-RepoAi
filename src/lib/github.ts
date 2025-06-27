@@ -1,6 +1,8 @@
-import { db } from "@/server/db"
-import { Octokit } from "octokit"
+import { db } from "@/server/db";
 import axios from "axios";
+import { Octokit } from "octokit";
+import { aiSummarizeCommit } from "./gemini";
+
 export const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,   
 })
@@ -9,7 +11,7 @@ const githubUrl = "https://github.com/docker/genai-stack"
 
 export type Response = {
   commitHash: string
-  commitMessages: string
+  commitMessage: string
   commitAuthorName: string
   commitAuthorAvatar: string
   commitDate: Date
@@ -35,7 +37,7 @@ export const getCommitHashes = async (githubUrl: string): Promise<Response[]> =>
 const sortedCommits = data.sort((a: any, b:any) => new Date(b.commit.author.date).getTime() - new Date(a.commit.author.date).getTime()) as any[]
 return sortedCommits.slice(0, 10).map((commit: any) => ({
     commitHash: commit.sha as string,
-    commitMessages: commit.commit?.message ?? "",
+    commitMessage: commit.commit?.message ?? "",
     commitAuthorName: commit.commit?.author.name ?? "",
     commitAuthorAvatar: commit.author?.avatar_url ?? "",
     commitDate: new Date(commit.commit?.author?.date ?? ""),
@@ -46,9 +48,32 @@ export const pullCommits= async (projectId: string): Promise<Response[]> => {
   const {project, githubUrl} = await fetchProjectGithubUrl(projectId);
   const commitHashes = await getCommitHashes(githubUrl);
   const unprocessedCommits = await filterUnprocessedCommits(projectId, commitHashes);
-  return unprocessedCommits
+  const summaryResponses =await Promise.allSettled(unprocessedCommits.map(commit=>{
+    return summarizeCommit(githubUrl, commit.commitHash)
+  }))
+  const summaries = summaryResponses.map((response) => {
+    if (response.status === 'fulfilled') {
+      return response.value as string;
+    } 
+    return ""
+  })
+  
+  const commits = db.commit.createMany({
+    data: summaries.map((summary, index) => {
+      return {
+        projectId: projectId,
+        commitHash: unprocessedCommits[index]!.commitHash, 
+        commitMessage: unprocessedCommits[index]!.commitMessage,
+        commitAuthorName: unprocessedCommits[index]!.commitAuthorName,
+        commitAuthorAvatar: unprocessedCommits[index]!.commitAuthorAvatar,
+        commitDate: unprocessedCommits[index]!.commitDate,
+        summary,
+      }
+    })
+  })
+  return commits;
 }
-
+//1:54:28
 async function summarizeCommit(githubUrl: string, commitHash: string) {
   const { data } = await axios.get(`${githubUrl}/commit/${commitHash}.diff`, {
     headers: {
@@ -58,7 +83,7 @@ async function summarizeCommit(githubUrl: string, commitHash: string) {
   if (!data || !data.commit || !data.commit.message) {
     throw new Error(`No commit message found for commit hash: ${commitHash}`);
   }
-  return await summarizeCommit
+  return await aiSummarizeCommit(data);
 }
 
 async function fetchProjectGithubUrl(projectId: string) {
