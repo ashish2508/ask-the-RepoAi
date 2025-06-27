@@ -2,16 +2,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 const model =  genAI.getGenerativeModel({
-  model: 'gemini-2.0-flash',
+  model: 'gemini-1.5-flash',
 });
-
-export const generationConfig = {
-  temperature: 0.6,
-  topP: 0.95,
-  maxOutputTokens: 1024,
-};
-
-export { model };
 
 export const aiSummarizeCommit = async (diff: string) => {
   const response = await model.generateContent([
@@ -47,5 +39,6 @@ export const aiSummarizeCommit = async (diff: string) => {
     It is given only as an example of appropriate comments.`,
             `Please summarise the following diff file: \n\n${diff}`,
       ]);
-    return response.response?.text() ?? "No summary generated";
+      console.log("Gemini response:", response);
+    return response.response?.text();
 }

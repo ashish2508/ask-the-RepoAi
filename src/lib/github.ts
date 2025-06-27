@@ -2,7 +2,7 @@ import { db } from "@/server/db";
 import axios from "axios";
 import { Octokit } from "octokit";
 import { aiSummarizeCommit } from "./gemini";
-
+//1:57:32
 export const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,   
 })
@@ -73,7 +73,7 @@ export const pollCommits= async (projectId: string) => {
   })
   return commits;
 }
-//1:54:28
+
 async function summarizeCommit(githubUrl: string, commitHash: string) {
   const { data } = await axios.get(`${githubUrl}/commit/${commitHash}.diff`, {
     headers: {
@@ -106,6 +106,6 @@ async function filterUnprocessedCommits(projectId:string, commitHashes: Response
     where: { projectId },
   })
   const UnProcessedCommitHashes = commitHashes.filter((commit) => 
-    !processedCommits.some((processedCommit) => processedCommit.commitHash === commit.commitHash));
+    !processedCommits.some((processedCommit:any ) => processedCommit.commitHash === commit.commitHash));
   return UnProcessedCommitHashes;
 }
