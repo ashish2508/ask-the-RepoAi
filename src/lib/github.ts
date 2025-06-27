@@ -1,6 +1,6 @@
 import { db } from "@/server/db"
 import { Octokit } from "octokit"
-
+import axios from "axios";
 export const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,   
 })
@@ -50,12 +50,15 @@ export const pullCommits= async (projectId: string): Promise<Response[]> => {
 }
 
 async function summarizeCommit(githubUrl: string, commitHash: string) {
-  const { data } = await octokit.rest.repos.getCommit({
-    owner: "docker",
-    repo: "genai-stack",
-    ref: commitHash,
+  const { data } = await axios.get(`${githubUrl}/commit/${commitHash}.diff`, {
+    headers: {
+      Accept: 'application/vnd.github.v3.diff',
+    },
   });
-  return data.commit.message;
+  if (!data || !data.commit || !data.commit.message) {
+    throw new Error(`No commit message found for commit hash: ${commitHash}`);
+  }
+  return await summarizeCommit
 }
 
 async function fetchProjectGithubUrl(projectId: string) {
