@@ -83,9 +83,7 @@ async function summarizeCommit(githubUrl: string, commitHash: string) {
   if (!data || typeof data !== "string") {
     throw new Error(`No diff data found for commit: ${commitHash}`)
   }
-  console.log("Generated summaries:")
-  console.log(aiSummarizeCommit(data))
-
+  
   return await aiSummarizeCommit(data)
 }
 

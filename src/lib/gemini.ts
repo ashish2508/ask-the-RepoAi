@@ -39,6 +39,5 @@ export const aiSummarizeCommit = async (diff: string) => {
     It is given only as an example of appropriate comments.`,
             `Please summarise the following diff file: \n\n${diff}`,
       ]);
-      console.log("Gemini response:", response.response?.text());
       return  response.response?.text() ?? "didn't work"
     }
