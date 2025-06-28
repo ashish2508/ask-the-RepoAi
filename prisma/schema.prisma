@@ -75,6 +75,6 @@ model Commit{
   commitAuthorAvatar String
   commitDate DateTime
   
-  summary String?
+  summary String
   
 }
