@@ -1,4 +1,5 @@
 "use client";
+import MagneticWrapper from "@/components/ui/magnetic-wrapper";
 import useProject from "@/hooks/use-project";
 import { LucideExternalLink, LucideGithub } from "lucide-react";
 import { Sanchez } from 'next/font/google';
@@ -13,12 +14,13 @@ const DashBoardPage = () => {
   const { project } = useProject();
   return (
     <div>
-      {project?.id}
       <div className="flex items-center justify-between flex-wrap gap-y-4">
         {/* Github Link */}
         <div className="w-fit rounded-md bg-primary px-4 py-3">
           <div className="flex items-center">
-            <LucideGithub className="size-6 text-lime-400 " />
+            <MagneticWrapper>
+              <LucideGithub className="size-6 text-zinc-700 " />
+            </MagneticWrapper>
             <div className="ml-2">
               <p className="text-sm font-medium text-gray-200/80">
                 This Project is linked to:{' '}
