@@ -83,9 +83,12 @@ async function summarizeCommit(githubUrl: string, commitHash: string) {
   if (!data || typeof data !== "string") {
     throw new Error(`No diff data found for commit: ${commitHash}`)
   }
-  
-  return await aiSummarizeCommit(data)
+
+  const summary = await aiSummarizeCommit(data)
+
+  return summary.trim() === "" ? "Not enough commit data to summarize" : summary
 }
+
 
 async function fetchProjectGithubUrl(projectId: string) {
   const project = await db.project.findUnique({
