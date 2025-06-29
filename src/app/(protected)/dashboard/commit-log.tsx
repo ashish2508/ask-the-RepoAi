@@ -1,6 +1,5 @@
 'use client'
 
-import { DotGrid } from '@/components/dotgrid'
 import MagneticWrapper from '@/components/ui/magnetic-wrapper'
 import useProject from '@/hooks/use-project'
 import { cn } from '@/lib/utils'
