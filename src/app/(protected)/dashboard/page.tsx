@@ -3,6 +3,7 @@ import MagneticWrapper from "@/components/ui/magnetic-wrapper";
 import useProject from "@/hooks/use-project";
 import { LucideExternalLink, LucideGithub } from "lucide-react";
 import { Sanchez } from 'next/font/google';
+import CommitLog from "./commit-log";
 
 const sanchez = Sanchez({
   subsets: ['latin'],
@@ -55,7 +56,7 @@ const DashBoardPage = () => {
       </div>
 
       <div className="mt-8"></div>
-      CommitLog
+      <CommitLog />
 
     </div>
   );

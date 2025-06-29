@@ -1,11 +1,16 @@
 'use client'
 
-import React from 'react'
+import useProject from '@/hooks/use-project'
+import { api } from '@/trpc/react'
 
 const CommitLog = () => {
-  return (
-    <div>commit-log</div>
-  )
+  const { projectId } = useProject()
+  const { data: commits } = api.project.getCommits.useQuery({
+    projectId: projectId!,
+  })
+    return (
+<></>
+    )
 }
 
 export default CommitLog

@@ -39,5 +39,15 @@ export const projectRouter = createTRPCRouter({
     });
     return projects;
   }),
-  
+  getCommits: protectedProcedure.input(z.object({
+      projectId: z.string().min(1, "Project ID is required"),
+    })).query(async ({ ctx, input }) => {
+      const commits = await ctx.db.commit.findMany({
+        where: { projectId: input.projectId,},
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      return commits;
+    }),
 });
