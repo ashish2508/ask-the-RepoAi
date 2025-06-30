@@ -56,3 +56,12 @@ export const aiSummarizeCommit = async (diff: string) => {
   ]);
   return response.response?.text() ?? "Couldn't summarize the code";
 }
+
+export async function generateEmbeddings(summary: string){
+const model = genAI.getGenerativeModel({
+  model:`text-embedding-004`,
+})
+const result = await model.embedContent(summary)
+const embedding = result.embedding;
+return embedding.values
+}
