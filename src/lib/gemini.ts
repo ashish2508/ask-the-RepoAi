@@ -9,7 +9,7 @@ const model = genAI.getGenerativeModel({
 });
 
 const limiter = new Bottleneck({
-  minTime: 4500, // 4.5 sec gap = ~13 requests/min (safely under 15)
+  minTime: 4200, // 4.2 sec gap = ~14 requests/min (safely under 15)
   maxConcurrent: 1,
 });
 
@@ -55,6 +55,10 @@ export const aiSummarizeCommit = async (diff: string) => {
 };
 
 export const summarizeCode = async (doc: Document) => {
+  console.log(`getting summary for ${doc.metadata.source}`);
+  try {
+    
+  
   const code = doc.pageContent.slice(0, 10000);
   const response = await limitedGenerate([
     `You are an intelligent senior software engineer who specializes in onboarding junior software engineers onto projects.
@@ -66,6 +70,10 @@ export const summarizeCode = async (doc: Document) => {
     Give a summary no more than 100 words of the above`,
   ]);
   return response.response?.text() ?? "Couldn't summarize the code";
+}catch (error) {
+    console.error(`Error summarizing code for ${doc.metadata.source}:`, error);
+    return "Error summarizing the code";
+  }
 };
 
 export async function generateEmbedding(summary: string) {
