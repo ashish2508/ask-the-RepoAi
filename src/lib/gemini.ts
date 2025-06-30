@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import type { Document } from '@langchain/core/documents';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 const model =  genAI.getGenerativeModel({
@@ -41,3 +42,17 @@ export const aiSummarizeCommit = async (diff: string) => {
       ]);
       return  response.response?.text() ?? "didn't work"
     }
+
+   export const summarizeCode = async (doc: Document) => {
+    const code = doc.pageContent.slice(0, 10000);
+    const response = await model.generateContent([
+    `You are an intelligent senior software engineer who specializes in onboarding junior software engineers onto projects.
+    You are onboarding a junior software engineer and explaining to them the purpose of ${doc.metadata.source} file.
+    Here is the code:
+    ---
+    ${code}
+    ---
+    Give a summary no more than 100 words of the above`
+  ]);
+  return response.response?.text() ?? "Couldn't summarize the code";
+}
