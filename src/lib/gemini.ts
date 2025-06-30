@@ -55,10 +55,7 @@ export const aiSummarizeCommit = async (diff: string) => {
 };
 
 export const summarizeCode = async (doc: Document) => {
-  console.log(`getting summary for ${doc.metadata.source}`);
   try {
-    
-  
   const code = doc.pageContent.slice(0, 10000);
   const response = await limitedGenerate([
     `You are an intelligent senior software engineer who specializes in onboarding junior software engineers onto projects.
