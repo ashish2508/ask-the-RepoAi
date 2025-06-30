@@ -11,6 +11,5 @@ export const loadGithubRepo= async(githubUrl: string, githubToken?:string)=> {
     maxConcurrency: 5
   });
   const docs = await loader.load();
-  return docs;
+  return docs
 }
-
