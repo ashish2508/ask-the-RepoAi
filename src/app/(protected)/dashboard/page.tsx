@@ -4,6 +4,7 @@ import useProject from "@/hooks/use-project";
 import { LucideExternalLink, LucideGithub } from "lucide-react";
 import { Sanchez } from 'next/font/google';
 import CommitLog from "./commit-log";
+import AskQuestionCard from "./ask-question-card";
 
 const sanchez = Sanchez({
   subsets: ['latin'],
@@ -50,7 +51,7 @@ const DashBoardPage = () => {
 
       <div className="mt-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols:5">
-          AskQuestionCard
+          <AskQuestionCard />
           MeetingCard
         </div>
       </div>
