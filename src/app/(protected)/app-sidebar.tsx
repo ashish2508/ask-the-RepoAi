@@ -69,10 +69,10 @@ export function AppSideBar() {
               priority
               className="rounded-lg transition-all duration-300 group-hover:brightness-110"
             />
-            </MagneticWrapper>
-            {open && (
-              <h1 className="text-primary/80 text-xl font-bold">Ask RepoAi</h1>
-            )}
+          </MagneticWrapper>
+          {open && (
+            <h1 className="text-primary/80 text-xl font-bold">Ask RepoAi</h1>
+          )}
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -113,16 +113,20 @@ export function AppSideBar() {
                   <SidebarMenuItem key={project.id}>
                     <SidebarMenuButton asChild>
                       <div
-                        className="cursor-pointer"
+                        className={cn(
+                          "cursor-pointer",
+                          !open && "w-full px-1"
+                        )}
                         onClick={() => setProjectId(project.id)}
                       >
                         <div
                           className={cn(
-                            "text-primary hover:shadow-primary/60 flex size-7 items-center justify-center rounded-sm border bg-white transition-all duration-300 hover:scale-125 hover:shadow-xl hover:brightness-110",
+                            "text-primary hover:shadow-primary/60 flex size-7 items-center justify-center rounded-sm border bg-white ",
                             {
                               "bg-primary text-white hover:shadow-white/60":
                                 project.id === projectId,
                             },
+                            open ? "size-7" : "min-w-full h-7"
                           )}
                         >
                           {project.name[0]}
