@@ -2,10 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import useProject from "@/hooks/use-project";
-import { X } from "lucide-react";
+import { askQuestion } from "@/server/actions";
+import { readStreamableValue } from "ai/rsc";
 import Image from "next/image";
 import React from "react";
 
@@ -13,6 +14,10 @@ const AskQuestionCard = () => {
   const { project } = useProject();
 
   const [open, setOpen] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [filesRefrenced, setFilesRefrenced] = React.useState<{ fileName: string; sourceCode: string; summary: string }[]>([]);
+  const [answer, setAnswer] = React.useState("");
+  
   const [question, setQuestion] = React.useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem("askQuestion") || "";
@@ -34,12 +39,25 @@ const AskQuestionCard = () => {
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!project?.id) {
+      return
+    }
+    setLoading(true);
     setOpen(true)
     if (typeof window !== 'undefined') {
       localStorage.removeItem("askQuestion");
     }
+    const { output, filesRefrenced } = await askQuestion(question, project.id);
+    setFilesRefrenced(filesRefrenced);
+    
+    for await (const delta of readStreamableValue(output)) {
+      if(delta){
+      setAnswer(ans=> ans+delta.text);
+      }
+    }
+    setLoading(false);
     setQuestion("");
   };
 
@@ -47,7 +65,7 @@ const AskQuestionCard = () => {
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
-          <DialogHeader> 
+          <DialogHeader>
             <DialogTitle>
               <Image src="/assets/logo.png" alt="logo" width={100} height={100} />
             </DialogTitle>
