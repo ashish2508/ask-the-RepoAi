@@ -2,9 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import useProject from "@/hooks/use-project";
+import { X } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
@@ -46,17 +47,20 @@ const AskQuestionCard = () => {
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            <Image src="/assets/logo.png" alt="logo" width={40} height={40} />
-          </DialogTitle>
-          <p className="text-sm text-muted-foreground">We'll try to help you understand the code better.</p>
-        </DialogHeader>
-        </DialogContent>
- 
+          <DialogHeader> 
+            <DialogTitle>
+              <Image src="/assets/logo.png" alt="logo" width={100} height={100} />
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-center">
+            <Button className="w-fit" onClick={() => setOpen(false)}>
+              Close
+            </Button>
+          </div>
 
-       
+        </DialogContent>
       </Dialog>
+
 
       <Card className="relative col-span-3 bg-gray-200/20 dark:bg-transparent">
         <CardHeader>
