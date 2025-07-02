@@ -4,6 +4,7 @@ import MagneticWrapper from '@/components/ui/magnetic-wrapper'
 import useProject from '@/hooks/use-project'
 import { api } from '@/trpc/react'
 import { ExternalLinkIcon } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 
 const CommitLog = () => {
@@ -19,7 +20,7 @@ const CommitLog = () => {
             <li key={commit.id} className=" relative flex gap-x-4 ">
               <>
                 <MagneticWrapper animationDuration={1} elasticity={0.5}>
-                  <img
+                  <Image
                     src={commit.commitAuthorAvatar || "/assets/default.png"}
                     alt="commit Avatar"
                     className="relative mt-4 size-12 flex-none rounded-full bg-gray-50"

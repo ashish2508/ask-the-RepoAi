@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useEffect, useRef, RefObject } from "react";
+import React, { useEffect, useRef } from "react";
+import type { RefObject } from "react";
 import gsap from "gsap";
 
 interface MagneticWrapperProps {
-  children: React.ReactElement;
+  children: React.ReactElement<any, any>;
   animationDuration?: number;
   elasticity?: number;
 }
+
 
 interface MagneticElement extends HTMLElement {
   getBoundingClientRect(): DOMRect;
