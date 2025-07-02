@@ -24,6 +24,8 @@ const CommitLog = () => {
                     src={commit.commitAuthorAvatar || "/assets/default.png"}
                     alt="commit Avatar"
                     className="relative mt-4 size-12 flex-none rounded-full bg-gray-50"
+                    priority
+                    quality={100}
                   />
                 </MagneticWrapper>
                 <div className="flex-auto rounded-md bg-primary/10 p-3 ring-1 ring-inset ring-emerald-900">
