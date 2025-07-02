@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import useProject from "@/hooks/use-project";
-import { askQuestion } from "@/server/actions";
+import { askQuestion } from "./actions";
 import { readStreamableValue } from "ai/rsc";
 import Image from "next/image";
 import React from "react";
@@ -49,15 +49,16 @@ const AskQuestionCard = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem("askQuestion");
     }
-    const { output, filesRefrenced } = await askQuestion(question, project.id);
-    setFilesRefrenced(filesRefrenced);
     
+    const { output, filesReferenced } = await askQuestion(question, project.id);
+    setFilesRefrenced(filesReferenced);
+
     for await (const delta of readStreamableValue(output)) {
-      if(delta){
-      setAnswer(ans=> ans+delta.text);
+      if (delta) {
+        setAnswer(ans => ans + delta)
       }
     }
-    setLoading(false);
+     setLoading(false);
     setQuestion("");
   };
 
@@ -70,6 +71,11 @@ const AskQuestionCard = () => {
               <Image src="/assets/logo.png" alt="logo" width={100} height={100} />
             </DialogTitle>
           </DialogHeader>
+          {answer}
+          <h1>File References</h1>
+          {filesRefrenced.map((file,index) =>{
+            return <span key={index}>{file.fileName}</span>
+          })}
           <div className="flex justify-center">
             <Button className="w-fit" onClick={() => setOpen(false)}>
               Close
