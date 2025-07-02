@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { neobrutalism } from "@clerk/themes";
 import { ThemeProvider } from "next-themes";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
@@ -41,6 +42,7 @@ export default function RootLayout({
           >
             <TRPCReactProvider>{children}</TRPCReactProvider>
             <Toaster />
+            <SpeedInsights />
           </ThemeProvider>
         </body>
       </html>
