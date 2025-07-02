@@ -9,10 +9,6 @@ import { createStreamableValue } from "ai/rsc";
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_API_KEY as string,
 });
-const limiter = new Bottleneck({
-  minTime: 4200, 
-  maxConcurrent: 1,
-});
 
 export async function askQuestion(question: string, projectId: string) {
   const stream = createStreamableValue();
@@ -28,17 +24,16 @@ export async function askQuestion(question: string, projectId: string) {
     ORDER BY similarity DESC
     LIMIT 10;
     `) as { fileName: string; sourceCode: string; summary: string }[];
+
+    let context = "";
+    for (const doc of result) {
+      context+=`source:${doc.fileName}\ncode content:${doc.sourceCode}\nsummary of file:${doc.summary}\n\n`;
+    }
     
-    const context = JSON.stringify(result, null, 2)
-      .replace(/"/g, "'")
-      .replace(/(\r\n|\n|\r)/gm, " ")
-      .replace(/'/g, "\\'")
-      .replace(/\\n/g, " ")
-      .replace(/\\'/g, "'");
-    async function run() {
-      const { textStream } = await streamText({
-        model: google("gemini-1.5-flash"),
-        prompt: `
+  (async () => {
+    const { textStream } = await streamText({
+      model: google("gemini-1.5-flash"),
+      prompt: `
         You are an AI code assistant designed to answer questions about the codebase, tailored for a technical intern learning about the codebase. Your goal is to provide clear, accurate, and detailed responses to support their learning journey.
 
         **About the AI Assistant:**
@@ -65,16 +60,14 @@ export async function askQuestion(question: string, projectId: string) {
         - Responses will be formatted in markdown syntax for clarity, including code snippets where relevant.
         - Answers will be detailed, unambiguous, and tailored to the technical intern's level of understanding, ensuring they are educational and easy to follow.
         `,
-      });
-  
+    });
     for await (const delta of textStream) {
-      stream.update(delta);
+      stream.update(delta)
     }
-  
+
     stream.done();
-  }
-  
-  await run();
+  })()
+
   return {
     output: stream.value,
     filesReferenced: result,
