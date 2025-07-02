@@ -9,7 +9,7 @@ const model = genAI.getGenerativeModel({
 });
 
 const limiter = new Bottleneck({
-  minTime: 4200, // 4.2 sec gap = ~14 requests/min (safely under 15)
+  minTime: 4200, 
   maxConcurrent: 1,
 });
 
