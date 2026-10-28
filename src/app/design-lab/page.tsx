@@ -8,19 +8,16 @@ import {
   ChevronRight,
   CircleDot,
   Code2,
-  FileCode2,
   GitCommitHorizontal,
   GitFork,
   LayoutDashboard,
   Menu,
   MessageSquareText,
   MoreHorizontal,
-  Plus,
   Search,
   Settings2,
   Sparkles,
-  TerminalSquare,
-  X,
+  TerminalSquare
 } from "lucide-react";
 import { useState } from "react";
 
@@ -148,10 +145,10 @@ function Score({ scores }: { scores: number[] }) {
       {labels.map((label, index) => {
         const score = scores[index] ?? 0;
         return (
-        <div key={label}>
-          <div className="flex justify-between text-[10px] uppercase tracking-wider opacity-60"><span>{label}</span><span>{score}/10</span></div>
-          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-current/10"><div className="h-full rounded-full bg-current" style={{ width: `${score * 10}%` }} /></div>
-        </div>
+          <div key={label}>
+            <div className="flex justify-between text-[10px] uppercase tracking-wider opacity-60"><span>{label}</span><span>{score}/10</span></div>
+            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-current/10"><div className="h-full rounded-full bg-current" style={{ width: `${score * 10}%` }} /></div>
+          </div>
         );
       })}
     </div>
