@@ -13,8 +13,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { TRPCReactProvider } from "@/trpc/react";
 
 export const metadata: Metadata = {
-  title: "Ask the repoAi",
-  description: "helps you chat to your repo",
+  title: "Ask the RepoAI — Understand your codebase",
+  description: "Ask questions about your GitHub repository and understand how the code works.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 

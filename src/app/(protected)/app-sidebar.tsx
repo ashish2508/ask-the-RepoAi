@@ -19,10 +19,8 @@ import { cn } from "@/lib/utils";
 
 import {
   Bot,
-  CreditCard,
   LayoutDashboard,
   PlusIcon,
-  Presentation,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -44,16 +42,6 @@ export function AppSideBar() {
       url: "/qa",
       icon: Bot,
     },
-    {
-      title: "Meetings",
-      url: "/meetings",
-      icon: Presentation,
-    },
-    {
-      title: "Billing",
-      url: "/billing",
-      icon: CreditCard,
-    },
   ];
 
   return (
@@ -71,7 +59,7 @@ export function AppSideBar() {
             />
           </MagneticWrapper>
           {open && (
-            <h1 className="text-primary/80 text-xl font-bold">Ask RepoAi</h1>
+            <h1 className="text-primary/80 text-lg font-bold">Ask the RepoAI</h1>
           )}
         </div>
       </SidebarHeader>

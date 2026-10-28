@@ -29,7 +29,7 @@ const CreatePage = () => {
       },
       {
         onSuccess: () => {
-          toast.success("Project created successfully!");
+          toast.success("Project created. Repository indexing is running in the background.");
           refetch();
           window.location.reload();
           reset();
@@ -44,7 +44,7 @@ const CreatePage = () => {
   }
 
   return (
-    <div className="flex h-full items-center justify-center gap-12">
+    <div className="mx-auto flex min-h-[calc(100vh-11rem)] max-w-5xl items-center justify-center gap-12 py-10">
       <MagneticWrapper>
         <Image
           src="/assets/slap.png"
@@ -52,44 +52,31 @@ const CreatePage = () => {
           width={400}
           height={400}
           priority
-          className="h-66 w-auto rounded-2xl transition-transform duration-300 hover:scale-120"
+          className="hidden h-72 w-auto rounded-2xl object-cover shadow-2xl shadow-indigo-950/10 transition-transform duration-300 hover:scale-[1.02] md:block"
         />
       </MagneticWrapper>
-      <div className="flex flex-col gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">
-            Link your GitHub repository
+      <div className="w-full max-w-lg rounded-3xl border border-border/70 bg-background/80 p-7 shadow-xl shadow-black/5 backdrop-blur md:p-9">
+        <div className="mb-7">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[.16em] text-primary">Start with a repository</p>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            Bring your code into focus
           </h1>
           <p className="text-muted-foreground text-sm">
-            Enter the URL of your GitHub repo to link it to Ask the RepoAi
+            Connect a GitHub repository to explore its code, ask questions, and follow changes.
           </p>
         </div>
         <div className="h-4"></div>
         <div>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Input
-              {...register("projectName", { required: true })}
-              placeholder="Project Name"
-              type="text"
-              required
-            />
-            <div className="h-4"></div>
-            <Input
-              {...register("repoUrl", { required: true })}
-              placeholder="Github repo url"
-              type="url"
-              required
-            />
-            <div className="h-4"></div>
-
-            <Input
-              {...register("githubToken")}
-              placeholder="Github Token (Optional)"
-            />
-            <div className="h-4"></div>
+          <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+            <label className="mb-2 block text-sm font-medium" htmlFor="projectName">Project name</label>
+            <Input id="projectName" autoComplete="off" {...register("projectName", { required: true })} placeholder="e.g. Storefront" type="text" required className="h-12 rounded-xl" />
+            <label className="mb-2 mt-5 block text-sm font-medium" htmlFor="repoUrl">GitHub repository URL</label>
+            <Input id="repoUrl" autoComplete="off" {...register("repoUrl", { required: true })} placeholder="https://github.com/owner/repository" type="url" required className="h-12 rounded-xl" />
+            <label className="mb-2 mt-5 block text-sm font-medium" htmlFor="githubToken">GitHub token <span className="font-normal text-muted-foreground">(optional, for private repositories)</span></label>
+            <Input id="githubToken" {...register("githubToken")} placeholder="ghp_…" type="password" autoComplete="new-password" className="h-12 rounded-xl" />
             <Button
               type="submit"
-              className="cursor-pointer"
+              className="mt-3 h-12 w-full cursor-pointer rounded-xl text-sm font-semibold"
               disabled={createProject.isPending}
             >
               {createProject.isPending && (

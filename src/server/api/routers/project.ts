@@ -2,6 +2,7 @@ import { pollCommits } from "@/lib/github";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { indexGithubRepo } from "@/lib/github-loader";
+import { after } from "next/server";
 
 export const projectRouter = createTRPCRouter({
   createProject: protectedProcedure
@@ -19,17 +20,23 @@ export const projectRouter = createTRPCRouter({
           githubUrl: input.githubUrl,
           userToProjects: {
             create: {
-              userId: ctx.user.userId!,
+              userId: ctx.user.dbUserId,
             },
           },
         },
       });
-      await indexGithubRepo(
-        project.id,
-        input.githubUrl,
-        input.githubToken,
-      );
-      await pollCommits(project.id);
+      after(async () => {
+        try {
+          await indexGithubRepo(
+            project.id,
+            input.githubUrl,
+            input.githubToken,
+          );
+          await pollCommits(project.id);
+        } catch (error) {
+          console.error(`Background indexing failed for project ${project.id}:`, error);
+        }
+      });
       return project;
     }),
   getProjects: protectedProcedure.query(async ({ ctx }) => {
@@ -37,7 +44,7 @@ export const projectRouter = createTRPCRouter({
       where: {
         userToProjects: {
           some: {
-            userId: ctx.user.userId!,
+            userId: ctx.user.dbUserId,
           },
         },
         deletedAt: null,

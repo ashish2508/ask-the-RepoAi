@@ -1,7 +1,7 @@
 import { db } from "@/server/db"
 import axios from "axios"
 import { Octokit } from "octokit"
-import { aiSummarizeCommit } from "./gemini"
+import { aiSummarizeCommit } from "./ai"
 
 export const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
@@ -17,8 +17,12 @@ export type Response = {
   commitDate: Date
 }
 
+type CommitPollResult = Awaited<ReturnType<typeof pollCommitsInternal>>
+
+const activePolls = new Map<string, Promise<CommitPollResult>>()
+
 export const getCommitHashes = async (githubUrl: string): Promise<Response[]> => {
-const [owner, repo] = githubUrl.split('/').slice(-2)
+  const [owner, repo] = githubUrl.split('/').slice(-2)
 
   if (!owner || !repo) {
     throw new Error(`Invalid GitHub URL: ${githubUrl}`)
@@ -41,7 +45,21 @@ const [owner, repo] = githubUrl.split('/').slice(-2)
   }))
 }
 
-export const pollCommits = async (projectId: string) => {
+export const pollCommits = async (projectId: string): Promise<CommitPollResult> => {
+  const activePoll = activePolls.get(projectId)
+  if (activePoll) return activePoll
+
+  const poll = pollCommitsInternal(projectId)
+  activePolls.set(projectId, poll)
+
+  try {
+    return await poll
+  } finally {
+    activePolls.delete(projectId)
+  }
+}
+
+async function pollCommitsInternal(projectId: string) {
   const { project, githubUrl } = await fetchProjectGithubUrl(projectId)
   const commitHashes = await getCommitHashes(githubUrl)
   const unprocessedCommits = await filterUnprocessedCommits(projectId, commitHashes)
@@ -54,21 +72,23 @@ export const pollCommits = async (projectId: string) => {
     response.status === "fulfilled" ? response.value as string : ""
   )
 
-  const commits = await Promise.all(
-    summaries.map((summary, index) => {
-      return db.commit.create({
-        data: {
-          projectId: projectId,
-          commitHash: unprocessedCommits[index]!.commitHash,
-          commitMessage: unprocessedCommits[index]!.commitMessage,
-          commitAuthorName: unprocessedCommits[index]!.commitAuthorName,
-          commitAuthorAvatar: unprocessedCommits[index]!.commitAuthorAvatar,
-          commitDate: unprocessedCommits[index]!.commitDate,
-          summary,
-        },
-      })
-    })
-  )
+  const commits = []
+  for (const [index, summary] of summaries.entries()) {
+    const commit = unprocessedCommits[index]
+    if (!commit) continue
+
+    commits.push(await db.commit.create({
+      data: {
+        projectId,
+        commitHash: commit.commitHash,
+        commitMessage: commit.commitMessage,
+        commitAuthorName: commit.commitAuthorName,
+        commitAuthorAvatar: commit.commitAuthorAvatar,
+        commitDate: commit.commitDate,
+        summary,
+      },
+    }))
+  }
 
   return commits
 }
@@ -113,7 +133,7 @@ async function filterUnprocessedCommits(projectId: string, commitHashes: Respons
     select: { commitHash: true },
   })
 
-  const processedHashes = new Set(processedCommits.map((c:any) => c.commitHash))
+  const processedHashes = new Set(processedCommits.map((c: any) => c.commitHash))
 
   return commitHashes.filter((commit) => !processedHashes.has(commit.commitHash))
 }

@@ -9,9 +9,12 @@ import Link from 'next/link'
 
 const CommitLog = () => {
   const { projectId, project } = useProject()
-  const { data: commits } = api.project.getCommits.useQuery({
-    projectId: projectId!,
-  })
+  const { data: commits, isLoading } = api.project.getCommits.useQuery(
+    { projectId },
+    { enabled: Boolean(projectId.trim()) },
+  )
+  if (isLoading) return <div className="rounded-2xl border border-border bg-background/60 p-6 text-sm text-muted-foreground">Loading recent changes…</div>
+  if (!commits?.length) return <div className="rounded-2xl border border-dashed border-border bg-background/60 p-6 text-sm text-muted-foreground">No recent commits are available yet.</div>
   return (
     <>
       <ul className="space-y-6">
@@ -22,10 +25,10 @@ const CommitLog = () => {
                 <MagneticWrapper animationDuration={1} elasticity={0.5}>
                   <Image
                     src={commit.commitAuthorAvatar || "/assets/default.png"}
-                    alt="commit Avatar"
+                    alt="Commit avatar"
+                    width={48}
+                    height={48}
                     className="relative mt-4 size-12 flex-none rounded-full bg-gray-50"
-                    priority
-                    quality={100}
                   />
                 </MagneticWrapper>
                 <div className="flex-auto rounded-md bg-primary/10 p-3 ring-1 ring-inset ring-emerald-900">

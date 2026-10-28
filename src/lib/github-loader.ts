@@ -1,7 +1,8 @@
+
 import { db } from "@/server/db";
 import { GithubRepoLoader } from "@langchain/community/document_loaders/web/github";
 import type { Document } from "@langchain/core/documents";
-import { generateEmbedding, summarizeCode } from "./gemini";
+import { generateEmbeddingBatch } from "./ai";
 
 export const loadGithubRepo = async (
   githubUrl: string,
@@ -41,8 +42,8 @@ export const loadGithubRepo = async (
     unknown: "warn",
     maxConcurrency: 5,
   });
-  const docs = await loader.load();
-  return docs;
+
+  return loader.load();
 };
 
 export const indexGithubRepo = async (
@@ -51,47 +52,69 @@ export const indexGithubRepo = async (
   githubToken?: string,
 ) => {
   const docs = await loadGithubRepo(githubUrl, githubToken);
-  const allEmbeddings = await generateEmbeddings(docs);
-  await Promise.allSettled(
-    allEmbeddings.map(async (embedding, index) => {
-      if (!embedding) return;
 
-      const sourceCodeEmbedding = await db.sourceCodeEmbedding.create({
-        data: {
-          summary: embedding.summary,
-          sourceCode: embedding.sourceCode,
-          fileName: embedding.fileName,
-          projectId,
-        },
+  if (docs.length === 0) {
+    throw new Error("No source files were found in this repository.");
+  }
+
+  const inputs = docs.map((doc) => {
+    const fileName = String(doc.metadata.source ?? "unknown");
+    return `File: ${fileName}\n\n${doc.pageContent.slice(0, 10_000)}`;
+  });
+
+  const embeddings = await generateEmbeddingBatch(inputs);
+
+  if (embeddings.length !== docs.length) {
+    throw new Error("Not all repository files received embeddings.");
+  }
+
+  const records = docs.map((doc, index) => {
+    const embedding = embeddings[index];
+
+    if (!embedding) {
+      throw new Error(`Missing embedding for file at index ${index}.`);
+    }
+
+    const fileName = String(doc.metadata.source ?? "unknown");
+
+    return {
+      fileName,
+      sourceCode: doc.pageContent,
+      summary: `Source file: ${fileName}`,
+      embedding,
+    };
+  });
+
+  await db.$transaction(
+    async (tx) => {
+      await tx.sourceCodeEmbedding.deleteMany({
+        where: { projectId },
       });
-      try {
-        await db.$executeRaw`
-          UPDATE "SourceCodeEmbedding"
-          SET "summaryEmbedding" = ${embedding.embedding}::vector
-          WHERE id = ${sourceCodeEmbedding.id};
-        `;
-      } catch (err) {
-        console.error("Vector insert failed for", embedding.fileName, err);
-      }
-    }),
-  );
-  return docs;
-};
 
-const generateEmbeddings = async (docs: Document[]) => {
-  return await Promise.all(
-    docs.map(async (doc) => {
-      const summary = await summarizeCode(doc);
-      const embedding = await generateEmbedding(summary);
-      if (!embedding || !Array.isArray(embedding) || embedding.length === 0) {
-        return null;
+      for (const record of records) {
+        const created = await tx.sourceCodeEmbedding.create({
+          data: {
+            projectId,
+            fileName: record.fileName,
+            sourceCode: record.sourceCode,
+            summary: record.summary,
+          },
+        });
+
+        const vector = `[${record.embedding.join(",")}]`;
+
+        await tx.$executeRaw`
+          UPDATE "SourceCodeEmbedding"
+          SET "summaryEmbedding" = ${vector}::vector
+          WHERE "id" = ${created.id};
+        `;
       }
-      return {
-        summary,
-        embedding,
-        sourceCode: JSON.parse(JSON.stringify(doc.pageContent)),
-        fileName: doc.metadata.source,
-      };
-    }),
+    },
+    {
+      maxWait: 10_000,
+      timeout: 60_000,
+    },
   );
+
+  return docs;
 };

@@ -1,75 +1,185 @@
+
 "use server";
 
-import { generateEmbedding } from "@/lib/gemini";
+import { generateEmbedding, streamCompletion } from "@/lib/ai";
+import { indexGithubRepo } from "@/lib/github-loader";
 import { db } from "@/server/db";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { streamText } from "ai";
+import { auth } from "@clerk/nextjs/server";
+import { getDatabaseUserId } from "@/server/auth";
 import { createStreamableValue } from "ai/rsc";
 
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_API_KEY as string,
-});
+type RetrievedDocument = {
+  fileName: string;
+  sourceCode: string;
+  summary: string;
+  similarity: number;
+};
 
-export async function askQuestion(question: string, projectId: string) {
+const MAX_CONTEXT_CHARS = 8_000;
+const MAX_FILE_CHARS = 1_500;
+
+export async function askQuestion(
+  question: string,
+  projectId: string,
+) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    throw new Error("You must be signed in to ask a question.");
+  }
+
+  const trimmedQuestion = question.trim();
+
+  if (!trimmedQuestion || trimmedQuestion.length > 4_000) {
+    throw new Error("Enter a question under 4,000 characters.");
+  }
+
+  const dbUserId = await getDatabaseUserId(userId);
+
+  const membership = await db.userToProject.findFirst({
+    where: {
+      projectId,
+      userId: dbUserId,
+    },
+    select: { id: true },
+  });
+
+  if (!membership) {
+    throw new Error("You do not have access to this repository.");
+  }
+
   const stream = createStreamableValue();
 
-  const queryVector = await generateEmbedding(question);
-  const vectorQuery = `[${queryVector.join(",")}]`;
-  const result = (await db.$queryRaw`
-    SELECT "fileName", "sourceCode", "summary",
-    1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) AS similarity
-    FROM "SourceCodeEmbedding"
-    WHERE 1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) > .5
-    AND "projectId" = ${projectId}
-    ORDER BY similarity DESC
-    LIMIT 10;
-    `) as { fileName: string; sourceCode: string; summary: string }[];
+  let result: RetrievedDocument[];
 
-    let context = "";
-    for (const doc of result) {
-      context+=`source:${doc.fileName}\ncode content:${doc.sourceCode}\nsummary of file:${doc.summary}\n\n`;
-    }
-    
-  (async () => {
-    const { textStream } = await streamText({
-      model: google("gemini-1.5-flash"),
-      prompt: `
-        You are an AI code assistant designed to answer questions about the codebase, tailored for a technical intern learning about the codebase. Your goal is to provide clear, accurate, and detailed responses to support their learning journey.
+  try {
+    const queryVector = await generateEmbedding(trimmedQuestion);
+    const vectorQuery = `[${queryVector.join(",")}]`;
 
-        **About the AI Assistant:**
-        - The AI assistant is a powerful, human-like artificial intelligence built to assist with technical queries.
-        - The AI possesses expert knowledge, is highly helpful, clever, and articulate in its responses.
-        - The AI maintains a professional, well-mannered, and approachable demeanor.
-        - The AI is always friendly, kind, and inspiring, delivering vivid, thoughtful, and precise answers to engage and educate the user.
-        - The AI has comprehensive knowledge across various topics and can accurately address nearly any question, with a focus on codebase-related inquiries.
-        - When responding to questions about code or specific files, the AI provides detailed, step-by-step instructions to ensure clarity and understanding for the intern.
+    result = await db.$queryRaw<RetrievedDocument[]>`
+      SELECT
+        "fileName",
+        "sourceCode",
+        "summary",
+        1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) AS similarity
+      FROM "SourceCodeEmbedding"
+      WHERE
+        "projectId" = ${projectId}
+        AND "summaryEmbedding" IS NOT NULL
+      ORDER BY "summaryEmbedding" <=> ${vectorQuery}::vector
+      LIMIT 10;
+    `;
 
-        **START CONTEXT BLOCK**  
-        ${context}  
-        **END OF CONTEXT BLOCK**
+    console.log(
+      "Retrieved repository context:",
+      result.map(({ fileName, similarity }) => ({
+        fileName,
+        similarity: Number(similarity),
+      })),
+    );
+  } catch (error) {
+    console.error("Could not retrieve repository context:", error);
 
-        **START QUESTION**  
-        ${question}  
-        **END OF QUESTION**
-
-        **Response Guidelines:**
-        - The AI assistant will incorporate any provided **CONTEXT BLOCK** to inform its responses.
-        - If the context does not contain the necessary information to answer the question, the AI will respond: "I'm sorry, but the provided context does not contain enough information to answer your question."
-        - The AI will not apologize for previous responses but will acknowledge new information if applicable, e.g., "Based on the provided context, here is the updated information."
-        - The AI will strictly adhere to the information in the context and will not invent or assume details not explicitly provided.
-        - Responses will be formatted in markdown syntax for clarity, including code snippets where relevant.
-        - Answers will be detailed, unambiguous, and tailored to the technical intern's level of understanding, ensuring they are educational and easy to follow.
-        `,
-    });
-    for await (const delta of textStream) {
-      stream.update(delta)
-    }
-
+    stream.update(
+      "I couldn't retrieve repository context. Check the server logs for an embedding or database error, then try again.",
+    );
     stream.done();
-  })()
+
+    return {
+      output: stream.value,
+      filesReferenced: [],
+    };
+  }
+
+  if (result.length === 0) {
+    stream.update(
+      "No indexed repository files were found. Refresh the repository index and try again.",
+    );
+    stream.done();
+
+    return {
+      output: stream.value,
+      filesReferenced: [],
+    };
+  }
+
+  let context = "";
+
+  for (const doc of result) {
+    const entry =
+      `Source: ${doc.fileName}\n` +
+      `Summary: ${doc.summary}\n` +
+      `Code:\n${doc.sourceCode.slice(0, MAX_FILE_CHARS)}\n\n`;
+
+    if (context.length + entry.length > MAX_CONTEXT_CHARS) {
+      const remaining = MAX_CONTEXT_CHARS - context.length;
+
+      if (remaining > 0) {
+        context += entry.slice(0, remaining);
+      }
+
+      break;
+    }
+
+    context += entry;
+  }
+
+  const prompt = `You are a codebase assistant.
+
+Answer using only the repository context below. Explain relevant code clearly using Markdown. Do not invent details. If the context is insufficient, say so.
+
+Repository context:
+${context}
+
+Question: ${trimmedQuestion}`;
+
+  void (async () => {
+    try {
+      await streamCompletion(prompt, (delta) => {
+        stream.update(delta);
+      });
+    } catch (error) {
+      console.error("Question answering failed:", error);
+
+      stream.update(
+        "\n\nI couldn't complete the answer because the AI provider request failed. Check the server logs for details and try again.",
+      );
+    } finally {
+      stream.done();
+    }
+  })();
 
   return {
     output: stream.value,
     filesReferenced: result,
   };
+}
+
+export async function reindexRepository(projectId: string) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    throw new Error("You must be signed in to re-index a repository.");
+  }
+
+  const dbUserId = await getDatabaseUserId(userId);
+
+  const project = await db.project.findFirst({
+    where: {
+      id: projectId,
+      deletedAt: null,
+      userToProjects: {
+        some: { userId: dbUserId },
+      },
+    },
+    select: {
+      githubUrl: true,
+    },
+  });
+
+  if (!project?.githubUrl) {
+    throw new Error("Repository not found or unavailable.");
+  }
+
+  await indexGithubRepo(projectId, project.githubUrl);
 }
