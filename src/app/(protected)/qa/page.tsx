@@ -1,9 +1,9 @@
 "use client";
 
+import { LoadingLink } from "@/components/navigation/loading-link";
 import { Button } from "@/components/ui/button";
 import useProject from "@/hooks/use-project";
 import { ArrowRight, Bot, FolderGit2 } from "lucide-react";
-import Link from "next/link";
 import AskQuestionCard from "../dashboard/ask-question-card";
 
 export default function QAPage() {
@@ -27,7 +27,7 @@ export default function QAPage() {
           <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-muted text-muted-foreground"><FolderGit2 className="size-5" /></div>
           <h2 className="mt-4 text-lg font-semibold">Choose a project to get started</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">Select a repository in the sidebar, or connect a GitHub repository to start asking questions.</p>
-          <Button asChild className="mt-5 rounded-xl"><Link href="/create">Connect a repository <ArrowRight className="ml-2 size-4" /></Link></Button>
+          <Button asChild className="mt-5 rounded-xl"><LoadingLink href="/create" loadingLabel="Opening setup…">Connect a repository <ArrowRight className="ml-2 size-4" /></LoadingLink></Button>
         </div>
       )}
     </div>

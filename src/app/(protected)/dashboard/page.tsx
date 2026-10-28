@@ -1,9 +1,9 @@
 "use client";
 
+import { LoadingLink } from "@/components/navigation/loading-link";
 import { Button } from "@/components/ui/button";
 import useProject from "@/hooks/use-project";
 import { ArrowRight, FolderGit2, Github, Sparkles } from "lucide-react";
-import Link from "next/link";
 import AskQuestionCard from "./ask-question-card";
 import CommitLog from "./commit-log";
 import ReindexButton from "./reindex-button";
@@ -38,7 +38,7 @@ export default function DashboardPage() {
           <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary"><FolderGit2 className="size-5" /></div>
           <h2 className="mt-4 text-lg font-semibold">Your first repository is one step away</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">Connect a GitHub repository and RepoAI will index the code and recent commits for you.</p>
-          <Button asChild className="mt-5 rounded-xl"><Link href="/create">Connect a repository <ArrowRight className="ml-2 size-4" /></Link></Button>
+          <Button asChild className="mt-5 rounded-xl"><LoadingLink href="/create" loadingLabel="Opening setup…">Connect a repository <ArrowRight className="ml-2 size-4" /></LoadingLink></Button>
         </div>
       )}
     </div>

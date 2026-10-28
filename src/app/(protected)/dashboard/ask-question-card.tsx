@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingLink } from "@/components/navigation/loading-link";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import useProject from "@/hooks/use-project";
@@ -16,7 +17,6 @@ import {
   RotateCcw,
   Sparkles,
 } from "lucide-react";
-import Link from "next/link";
 import React from "react";
 import { toast } from "sonner";
 import { askQuestion } from "./actions";
@@ -64,8 +64,9 @@ const AskQuestionCard = ({ compact = false }: AskQuestionCardProps) => {
 
   if (compact) {
     return (
-      <Link
+      <LoadingLink
         href="/qa"
+        loadingLabel="Opening workbench…"
         className="group relative col-span-3 overflow-hidden rounded-3xl border border-primary/20 bg-[linear-gradient(120deg,rgba(244,145,73,0.12),transparent_48%),var(--card)] p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
       >
         <div className="absolute -right-10 -top-14 size-40 rounded-full border border-primary/20 bg-primary/10 blur-sm transition group-hover:scale-110" />
@@ -81,7 +82,7 @@ const AskQuestionCard = ({ compact = false }: AskQuestionCardProps) => {
             <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">Search the repository with grounded answers and a clear trail of the files behind them.</p>
           </div>
         </div>
-      </Link>
+      </LoadingLink>
     );
   }
 

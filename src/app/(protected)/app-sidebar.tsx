@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingLink } from "@/components/navigation/loading-link";
 import { Button } from "@/components/ui/button";
 import MagneticWrapper from "@/components/ui/magnetic-wrapper";
 import {
@@ -23,7 +24,6 @@ import {
   PlusIcon,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export function AppSideBar() {
@@ -72,8 +72,9 @@ export function AppSideBar() {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <Link
+                      <LoadingLink
                         href={item.url}
+                        loadingLabel="Opening…"
                         className={cn(
                           {
                             "!bg-primary !text-white no-underline":
@@ -84,7 +85,7 @@ export function AppSideBar() {
                       >
                         <item.icon />
                         <span>{item.title}</span>
-                      </Link>
+                      </LoadingLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -133,7 +134,7 @@ export function AppSideBar() {
                 open ? "flex justify-start px-2" : "flex justify-center",
               )}
             >
-              <Link href="/create">
+              <LoadingLink href="/create" loadingLabel="Opening…">
                 <Button
                   size="sm"
                   variant="outline"
@@ -145,7 +146,7 @@ export function AppSideBar() {
                   <PlusIcon className="size-4" />
                   {open && <span>Create New Project</span>}
                 </Button>
-              </Link>
+              </LoadingLink>
             </div>
           </SidebarGroupContent>
         </SidebarGroup>
