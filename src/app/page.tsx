@@ -1,96 +1,52 @@
-import { SignedIn, SignedOut } from "@clerk/nextjs";
-import { ArrowRight, Bot, Braces, GitBranch, Github, Search, Sparkles } from "lucide-react";
-import Link from "next/link";
+"use client";
 
-const features = [
-  {
-    icon: Search,
-    title: "Find answers in your code",
-    description: "Ask a question in plain language and get a grounded answer with the files that matter.",
-  },
-  {
-    icon: GitBranch,
-    title: "Catch up on every change",
-    description: "Turn recent commits into clear summaries, so you can follow the project as it evolves.",
-  },
-  {
-    icon: Braces,
-    title: "Understand the structure",
-    description: "Explore a repository with concise explanations of what each part does and how it fits.",
-  },
+import { SignedIn, SignedOut } from "@clerk/nextjs";
+import {
+  ArrowRight,
+  Bot,
+  Braces,
+  Check,
+  ChevronRight,
+  FileCode2,
+  GitCommitHorizontal,
+  Github,
+  MessageSquareText,
+  Search,
+  Sparkles,
+} from "lucide-react";
+import { useState } from "react";
+
+import { LoadingLink } from "@/components/navigation/loading-link";
+import { ThemeToggle } from "@/components/ui/themeToggle";
+
+const tabs = [
+  { label: "Ask", icon: MessageSquareText, title: "Where does the checkout flow begin?", answer: "The flow starts in the cart page, then submits through the checkout API route. The two files below are the strongest starting points.", files: ["src/app/cart/page.tsx", "src/app/api/checkout/route.ts"] },
+  { label: "Trace", icon: Braces, title: "How does a repository become searchable?", answer: "The GitHub loader collects source documents, embeddings make them retrievable by meaning, and the answer returns the relevant files as evidence.", files: ["src/lib/github-loader.ts", "src/lib/ai.ts"] },
+  { label: "Changes", icon: GitCommitHorizontal, title: "What changed most recently?", answer: "Recent commits are summarized into a readable trail, so you can understand movement without reading every diff from scratch.", files: ["src/lib/github.ts", "src/server/api/routers/project.ts"] },
 ];
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState(0);
+  const active = tabs[activeTab]!;
+
   return (
-    <main className="landing-shell min-h-screen overflow-hidden">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
-        <Link href="/" className="flex items-center gap-3 font-semibold tracking-tight text-foreground">
-          <span className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/15">
-            <Bot className="size-5" />
-          </span>
-          <span className="text-lg">Ask the <span className="text-primary">RepoAI</span></span>
-        </Link>
-        <div className="flex items-center gap-3">
-          <SignedOut>
-            <Link className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground" href="/sign-in">Sign in</Link>
-            <Link className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-black/10 transition hover:-translate-y-0.5 hover:bg-primary/90" href="/sign-up">Get started <ArrowRight className="ml-1 inline size-4" /></Link>
-          </SignedOut>
-          <SignedIn>
-            <Link className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90" href="/dashboard">Open workspace <ArrowRight className="ml-1 inline size-4" /></Link>
-          </SignedIn>
-        </div>
-      </nav>
+    <main className="min-h-screen bg-background text-foreground">
+      <header className="mx-auto flex max-w-[1440px] items-center justify-between border-b border-border px-5 py-4 sm:px-8 lg:px-12">
+        <LoadingLink href="/" loadingLabel="Loading…" className="flex items-center gap-3 text-sm font-semibold tracking-tight">
+          <span className="grid size-8 place-items-center bg-primary text-primary-foreground"><Bot className="size-4" /></span>
+          Ask the <span className="text-primary">RepoAI</span>
+        </LoadingLink>
+        <div className="flex items-center gap-3"><ThemeToggle /><SignedOut><LoadingLink href="/sign-in" loadingLabel="Opening…" className="hidden px-3 py-2 text-xs font-medium text-muted-foreground transition hover:text-foreground sm:block">Sign in</LoadingLink><LoadingLink href="/sign-up" loadingLabel="Opening…" className="flex items-center gap-2 bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition hover:bg-primary/90">Get started <ArrowRight className="size-3.5" /></LoadingLink></SignedOut><SignedIn><LoadingLink href="/dashboard" loadingLabel="Opening workspace…" className="flex items-center gap-2 bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition hover:bg-primary/90">Open workspace <ArrowRight className="size-3.5" /></LoadingLink></SignedIn></div>
+      </header>
 
-      <section className="relative mx-auto grid max-w-7xl items-center gap-14 px-6 pb-24 pt-16 lg:grid-cols-[1.05fr_.95fr] lg:px-10 lg:pb-32 lg:pt-24">
-        <div className="relative z-10">
-          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-card px-3.5 py-2 text-xs font-semibold text-primary shadow-sm shadow-primary/5">
-            <Sparkles className="size-3.5" /> Your codebase, easier to understand
-          </div>
-          <h1 className="max-w-3xl text-5xl font-semibold leading-[1.05] tracking-[-.055em] text-foreground sm:text-6xl lg:text-7xl">
-            Get to know any repo <span className="landing-gradient">like you built it.</span>
-          </h1>
-          <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground">
-            Connect a GitHub repository, ask how it works, and get clear answers grounded in the code and its commit history.
-          </p>
-          <div className="mt-9 flex flex-wrap items-center gap-4">
-            <SignedOut>
-              <Link className="rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-xl shadow-primary/15 transition hover:-translate-y-0.5 hover:bg-primary/90" href="/sign-up">Start exploring <ArrowRight className="ml-2 inline size-4" /></Link>
-              <Link className="rounded-full border border-border bg-card px-6 py-3.5 text-sm font-semibold text-foreground/90 transition hover:border-border hover:bg-muted" href="/sign-in">I already have an account</Link>
-            </SignedOut>
-            <SignedIn>
-              <Link className="rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-xl shadow-primary/15 transition hover:-translate-y-0.5 hover:bg-primary/90" href="/dashboard">Go to your workspace <ArrowRight className="ml-2 inline size-4" /></Link>
-            </SignedIn>
-          </div>
-          <div className="mt-9 flex items-center gap-2 text-sm text-muted-foreground"><Github className="size-4 text-foreground" /> Built around the repositories you already use</div>
-        </div>
+      <section className="mx-auto grid max-w-[1440px] gap-12 px-5 pb-20 pt-16 sm:px-8 lg:grid-cols-[.72fr_1.28fr] lg:items-center lg:px-12 lg:pb-28 lg:pt-24">
+        <div className="max-w-xl"><p className="mb-6 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.2em] text-primary"><Sparkles className="size-3.5" /> Repository workbench</p><h1 className="text-5xl font-semibold leading-[.94] tracking-[-.07em] sm:text-7xl">Understand the code before you change it.</h1><p className="mt-7 max-w-lg text-base leading-7 text-muted-foreground">Ask a repository how it works, follow the evidence, and catch up on changes without losing the thread.</p><div className="mt-9 flex flex-wrap gap-3"><SignedOut><LoadingLink href="/sign-up" loadingLabel="Opening setup…" className="flex items-center gap-3 bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:bg-primary/90">Start exploring <ArrowRight className="size-4" /></LoadingLink><LoadingLink href="/sign-in" loadingLabel="Opening…" className="flex items-center gap-3 border border-border px-5 py-3 text-sm font-semibold transition hover:bg-muted">I have an account</LoadingLink></SignedOut><SignedIn><LoadingLink href="/dashboard" loadingLabel="Opening workspace…" className="flex items-center gap-3 bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:bg-primary/90">Go to your workspace <ArrowRight className="size-4" /></LoadingLink></SignedIn></div><p className="mt-8 flex items-center gap-2 text-xs text-muted-foreground"><Github className="size-3.5" /> Built around the repositories you already use.</p></div>
 
-        <div className="relative mx-auto w-full max-w-xl lg:ml-auto">
-          <div className="landing-orb absolute -inset-10 rounded-full blur-3xl" />
-          <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-[0_30px_100px_-35px_rgba(0,0,0,.45)]">
-            <div className="flex items-center justify-between border-b border-border/70 px-5 py-4">
-              <div className="flex items-center gap-2"><span className="size-2.5 rounded-full bg-rose-400"/><span className="size-2.5 rounded-full bg-amber-400"/><span className="size-2.5 rounded-full bg-emerald-400"/></div>
-              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground"><Github className="size-3.5"/> acme / storefront</div>
-              <div className="size-4" />
-            </div>
-            <div className="bg-background p-6 sm:p-8">
-              <div className="mb-7 flex items-center gap-3"><div className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary"><Bot className="size-5"/></div><div><p className="text-sm font-semibold text-foreground">Ask your repository</p><p className="text-xs text-muted-foreground">Answers linked to source files</p></div></div>
-              <div className="ml-auto max-w-[85%] rounded-2xl rounded-br-md bg-secondary px-4 py-3 text-sm leading-6 text-secondary-foreground">Where is the checkout flow handled?</div>
-              <div className="mt-5 flex gap-3"><div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary"><Sparkles className="size-4"/></div><div className="min-w-0"><p className="text-sm leading-6 text-foreground/90">The checkout flow starts in the cart page and submits through the checkout API route.</p><div className="mt-4 space-y-2"><div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-card px-3 py-2.5 text-xs font-medium text-muted-foreground"><Braces className="size-3.5 text-primary"/> src/app/cart/page.tsx <span className="ml-auto text-primary">Referenced file</span></div><div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-card px-3 py-2.5 text-xs font-medium text-muted-foreground"><Braces className="size-3.5 text-primary"/> src/app/api/checkout/route.ts <span className="ml-auto text-primary">Referenced file</span></div></div></div></div>
-              <div className="mt-7 flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground shadow-sm"><span>Ask anything about this codebase…</span><span className="ml-auto grid size-7 place-items-center rounded-lg bg-primary text-primary-foreground"><ArrowRight className="size-4"/></span></div>
-            </div>
-            <div className="grid grid-cols-3 divide-x divide-border/70 border-t border-border/70 bg-card py-4 text-center"><div><p className="text-sm font-semibold text-foreground">Repository-aware</p><p className="mt-1 text-[11px] text-muted-foreground">Grounded in your code</p></div><div><p className="text-sm font-semibold text-foreground">Commit insights</p><p className="mt-1 text-[11px] text-muted-foreground">Changes made clearer</p></div><div><p className="text-sm font-semibold text-foreground">Made for teams</p><p className="mt-1 text-[11px] text-muted-foreground">Share context faster</p></div></div>
-          </div>
-        </div>
+        <div className="border border-border bg-card shadow-[0_24px_70px_-38px_rgba(0,0,0,.7)]"><div className="flex items-center justify-between border-b border-border bg-muted/30 px-4 py-3 text-[10px] text-muted-foreground"><div className="flex items-center gap-2"><span className="size-2 rounded-full bg-destructive" /><span className="size-2 rounded-full bg-primary" /><span className="size-2 rounded-full bg-secondary" /></div><span className="flex items-center gap-2"><Github className="size-3" /> acme / storefront</span><span className="flex items-center gap-2 text-primary"><span className="size-1.5 animate-pulse rounded-full bg-primary" /> indexed</span></div><div className="grid min-h-[31rem] grid-cols-[9rem_minmax(0,1fr)] md:grid-cols-[11rem_minmax(0,1fr)_10rem]"><aside className="border-r border-border bg-muted/15 p-3 text-[10px]"><p className="mb-4 text-[9px] font-bold uppercase tracking-[.18em] text-muted-foreground">Explorer</p><p className="mb-2 font-semibold">Repository</p>{["page.tsx", "checkout.ts", "github-loader.ts", "schema.prisma"].map((file, i) => <div key={file} className={`mb-1 flex items-center gap-2 px-2 py-2 ${i === 0 ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}><FileCode2 className="size-3" /> <span className="truncate">{file}</span></div>)}<p className="mb-2 mt-7 text-[9px] font-bold uppercase tracking-[.18em] text-muted-foreground">Views</p><div className="flex items-center gap-2 py-2 font-semibold text-primary"><MessageSquareText className="size-3" /> Questions</div><div className="flex items-center gap-2 py-2 text-muted-foreground"><GitCommitHorizontal className="size-3" /> Changes</div></aside><section className="min-w-0 p-5 sm:p-7"><div className="mb-6 flex items-center justify-between"><div><p className="text-[9px] font-bold uppercase tracking-[.18em] text-primary">Workspace / ffmpeg</p><h2 className="mt-2 text-xl font-semibold">Repository workbench</h2></div><Search className="size-4 text-muted-foreground" /></div><div className="mb-5 flex gap-1 border-b border-border">{tabs.map((tab, index) => { const Icon = tab.icon; return <button key={tab.label} onClick={() => setActiveTab(index)} className={`flex items-center gap-2 border-b-2 px-3 py-2.5 text-[10px] font-semibold transition ${activeTab === index ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}><Icon className="size-3.5" />{tab.label}</button>; })}</div><p className="text-[9px] font-bold uppercase tracking-[.18em] text-muted-foreground">Question / answer</p><h3 className="mt-3 max-w-lg text-2xl font-semibold leading-tight">{active.title}</h3><div className="mt-5 border-l-2 border-primary pl-4 text-sm leading-6 text-muted-foreground"><p>{active.answer}</p><div className="mt-5 space-y-2">{active.files.map((file) => <div key={file} className="flex items-center gap-2 border border-border bg-muted/20 px-3 py-2 text-[10px] text-foreground"><Braces className="size-3 text-primary" />{file}<ChevronRight className="ml-auto size-3 text-muted-foreground" /></div>)}</div></div><div className="mt-8 flex items-center gap-3 border border-border bg-background px-3 py-2.5 text-[10px] text-muted-foreground"><span className="flex-1">Ask another question about this repository…</span><span className="grid size-6 place-items-center bg-primary text-primary-foreground"><ArrowRight className="size-3" /></span></div></section><aside className="hidden border-l border-border bg-muted/15 p-3 text-[10px] md:block"><p className="text-[9px] font-bold uppercase tracking-[.18em] text-muted-foreground">Evidence</p><div className="mt-5 space-y-5"><div><p className="text-muted-foreground">Files indexed</p><p className="mt-2 text-2xl font-semibold">248</p></div><div><p className="text-muted-foreground">Recent changes</p><p className="mt-2 text-2xl font-semibold">12</p></div><div className="border-t border-border pt-4"><p className="flex items-center gap-2 text-primary"><Check className="size-3" /> grounded</p><p className="mt-2 leading-5 text-muted-foreground">Every answer names the files it used.</p></div></div></aside></div></div>
       </section>
 
-      <section className="border-y border-border/70 bg-card px-6 py-20 lg:px-10 lg:py-24">
-        <div className="mx-auto max-w-7xl">
-          <div className="max-w-2xl"><p className="text-xs font-bold uppercase tracking-[.18em] text-primary">A better way to explore</p><h2 className="mt-4 text-3xl font-semibold tracking-[-.04em] text-foreground sm:text-4xl">Less searching. More understanding.</h2><p className="mt-4 leading-7 text-muted-foreground">Get useful context without tracing every import or reading every commit from the beginning.</p></div>
-          <div className="mt-12 grid gap-5 md:grid-cols-3">{features.map(({ icon: Icon, title, description }, index) => <article key={title} className="rounded-2xl border border-border bg-card p-6 shadow-sm shadow-black/10 transition hover:-translate-y-1 hover:shadow-lg hover:shadow-black/20"><div className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary"><Icon className="size-5"/></div><p className="mt-6 text-xs font-semibold text-primary">0{index + 1}</p><h3 className="mt-2 text-lg font-semibold tracking-tight text-foreground">{title}</h3><p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p></article>)}</div>
-        </div>
-      </section>
-
-      <footer className="mx-auto flex max-w-7xl flex-col gap-3 px-6 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between lg:px-10"><Link href="/" className="font-semibold text-foreground">Ask the RepoAI</Link><span>Make the next codebase feel familiar.</span></footer>
+      <section className="border-y border-border bg-muted/20 px-5 py-16 sm:px-8 lg:px-12"><div className="mx-auto max-w-[1440px]"><div className="flex flex-col justify-between gap-5 border-b border-border pb-7 sm:flex-row sm:items-end"><div><p className="text-[10px] font-bold uppercase tracking-[.2em] text-primary">A better first move</p><h2 className="mt-3 text-3xl font-semibold tracking-[-.04em]">Stop guessing where to start.</h2></div><p className="max-w-sm text-sm leading-6 text-muted-foreground">RepoAI turns a repository into a place you can question, inspect, and return to.</p></div><div className="grid divide-y divide-border md:grid-cols-3 md:divide-x md:divide-y-0">{[{ icon: Search, title: "Ask in plain language", text: "Start with the question you actually have, not the file you hope contains it." }, { icon: Braces, title: "See the evidence", text: "Keep the relevant files beside the answer instead of losing them in a chat transcript." }, { icon: GitCommitHorizontal, title: "Follow the movement", text: "Read commit changes as context, not as a wall of unfamiliar diffs." }].map(({ icon: Icon, title, text }, index) => <article key={title} className="py-7 md:px-7 md:first:pl-0"><div className="flex items-center gap-3"><span className="text-xs font-bold text-primary">0{index + 1}</span><Icon className="size-4 text-primary" /></div><h3 className="mt-5 text-lg font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>)}</div></div></section>
+      <footer className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-7 text-xs text-muted-foreground sm:px-8 lg:px-12"><span className="font-semibold text-foreground">Ask the RepoAI</span><span>Make the next codebase feel familiar.</span></footer>
     </main>
   );
 }

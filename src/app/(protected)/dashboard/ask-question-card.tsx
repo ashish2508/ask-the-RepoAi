@@ -4,7 +4,6 @@ import { LoadingLink } from "@/components/navigation/loading-link";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import useProject from "@/hooks/use-project";
-import MDEditor from "@uiw/react-md-editor";
 import { readStreamableValue } from "ai/rsc";
 import {
   ArrowUp,
@@ -17,9 +16,22 @@ import {
   RotateCcw,
   Sparkles,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import React from "react";
 import { toast } from "sonner";
 import { askQuestion } from "./actions";
+
+const Markdown = dynamic(
+  () => import("@uiw/react-md-editor").then((module) => module.default.Markdown),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="min-h-32 animate-pulse bg-muted/40 p-5 text-sm text-muted-foreground">
+        Preparing the response view…
+      </div>
+    ),
+  },
+);
 
 type AskQuestionCardProps = {
   compact?: boolean;
@@ -49,7 +61,10 @@ const AskQuestionCard = ({ compact = false }: AskQuestionCardProps) => {
 
     try {
       const { output, filesReferenced } = await askQuestion(question, project.id);
-      setFilesReferenced(filesReferenced);
+      const uniqueFiles = Array.from(
+        new Map(filesReferenced.map((file) => [file.fileName, file])).values(),
+      );
+      setFilesReferenced(uniqueFiles);
 
       for await (const delta of readStreamableValue(output)) {
         if (delta) setAnswer((ans) => ans + delta);
@@ -135,7 +150,7 @@ const AskQuestionCard = ({ compact = false }: AskQuestionCardProps) => {
             {answer && !loading && <Button variant="ghost" size="sm" onClick={() => { setAnswer(""); setFilesReferenced([]); }}><RotateCcw className="mr-2 size-3.5" /> New answer</Button>}
           </div>
           {answer || loading ? (
-            <MDEditor.Markdown source={answer || "Searching relevant files and composing an answer..."} className="prose prose-sm max-w-none dark:prose-invert" />
+            <Markdown source={answer || "Searching relevant files and composing an answer..."} className="repoai-markdown" />
           ) : (
             <div className="grid min-h-80 place-items-center text-center">
               <div className="max-w-sm">

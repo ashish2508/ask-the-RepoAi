@@ -3,13 +3,13 @@
 import { LoadingLink } from "@/components/navigation/loading-link";
 import { Button } from "@/components/ui/button";
 import useProject from "@/hooks/use-project";
-import { ArrowRight, FolderGit2, Github, Sparkles } from "lucide-react";
+import { AlertCircle, ArrowRight, FolderGit2, Github, RefreshCw, Sparkles } from "lucide-react";
 import AskQuestionCard from "./ask-question-card";
 import CommitLog from "./commit-log";
 import ReindexButton from "./reindex-button";
 
 export default function DashboardPage() {
-  const { projects, project } = useProject();
+  const { projects, project, error, refetch } = useProject();
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
@@ -22,7 +22,14 @@ export default function DashboardPage() {
         {project && <div className="flex flex-wrap items-center gap-3"><a href={project.githubUrl ?? "#"} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-medium transition hover:bg-muted"><Github className="size-4" /> View repository</a><ReindexButton /></div>}
       </header>
 
-      {project ? (
+      {error ? (
+        <section className="border border-destructive/30 bg-destructive/5 p-6 md:p-8">
+          <div className="flex items-start gap-4">
+            <div className="grid size-10 shrink-0 place-items-center bg-destructive/10 text-destructive"><AlertCircle className="size-5" /></div>
+            <div className="max-w-xl"><p className="text-xs font-bold uppercase tracking-[.18em] text-destructive">Workspace unavailable</p><h2 className="mt-2 text-xl font-semibold">We couldn&apos;t load your projects.</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">The database or authentication service did not respond. Your repository data is safe; try the connection again.</p><Button variant="outline" className="mt-5" onClick={() => refetch()}><RefreshCw className="mr-2 size-4" /> Try again</Button></div>
+          </div>
+        </section>
+      ) : project ? (
         <>
           <section className="grid grid-cols-1 gap-5 lg:grid-cols-5"><AskQuestionCard compact /></section>
           <section className="space-y-4"><div><h2 className="text-xl font-semibold tracking-tight">Recent changes</h2><p className="mt-1 text-sm text-muted-foreground">A readable trail of what changed and why.</p></div><CommitLog /></section>
